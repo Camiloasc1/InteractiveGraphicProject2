@@ -5,18 +5,23 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
     render: render
 });
 
+var player;
+
 function preload() {
     game.load.image('map', 'assets/Map.jpg');
+    game.load.image('bus', 'assets/Bus.png');
 }
 
 function create() {
     game.add.image(0, 0, 'map');
-    game.world.setBounds(0, 0, 1505, 983);
-    //game.camera.setPosition(500, 500);
+    player = game.add.sprite(0, 0, 'bus');
+    player.scale.setTo(0.05, 0.05);
+    var image = game.cache.getImage('map');
+    game.world.setBounds(0, 0, image.width, image.height);
+    game.camera.follow(player);
 }
 
 function update() {
-
 }
 
 function render() {
