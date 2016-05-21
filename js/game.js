@@ -30,7 +30,9 @@ function create() {
     game.add.image(0, 0, 'map');
     //Goal Sprite
     goalSprite = game.add.image(0, 0, 'flag');
-    goalSprite.anchor.set(0.5, 0.5);
+    goalSprite.anchor.set(0.2, 1.0);
+    goalSprite.height = 32;
+    goalSprite.width = 32;
     //Movement Markers
     stationsPool = game.add.group();
 
