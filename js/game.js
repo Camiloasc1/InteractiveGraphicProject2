@@ -9,7 +9,7 @@ var player;
 var currentStation;
 var goalStation;
 var goalSprite;
-var markersPool;
+var stationsPool;
 var textStyle = {font: 'bold 16px Arial', fill: '#000000', backgroundColor: '#cccccc'};
 var text;
 
@@ -32,7 +32,7 @@ function create() {
     goalSprite = game.add.image(0, 0, 'flag');
     goalSprite.anchor.set(0.5, 0.5);
     //Movement Markers
-    markersPool = game.add.group();
+    stationsPool = game.add.group();
 
     //Player sprite
     player = game.add.sprite(0, 0, 'bus');
@@ -43,11 +43,12 @@ function create() {
     //Buttons for each station
     var button;
     for (var i = 0; i < stations.length; i++) {
-        button = game.add.button(stations[i].x - 10, stations[i].y - 10, null, onButtonPressed, this);
-        button.height = 20;
-        button.width = 20;
+        button = game.add.button(stations[i].x - 12, stations[i].y - 12, 'marker', onButtonPressed, this);
+        button.height = 24;
+        button.width = 24;
         button.station = stations[i];
         stations[i].button = button;
+        stationsPool.add(button);
     }
 
     //Start at random station
@@ -104,28 +105,12 @@ function updateText() {
 }
 
 function updateStations() {
-    var marker;
-    markersPool.forEachAlive(function (m) {
+    stationsPool.forEachAlive(function (m) {
         m.kill();
     });
     for (var i = 0; i < stations.length; i++) {
         if (areConnected(currentStation, stations[i])) {
-            marker = getMarker();
-            marker.x = stations[i].x;
-            marker.y = stations[i].y;
+            stations[i].button.revive();
         }
     }
-}
-
-function getMarker() {
-    var marker;
-    marker = markersPool.getFirstDead();
-    if (marker === null || marker === undefined) {
-        marker = game.add.image(0, 0, 'marker');
-        marker.anchor.set(0.5, 0.75);
-        markersPool.add(marker);
-        return marker
-    }
-    marker.revive();
-    return marker;
 }
