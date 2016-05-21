@@ -37,6 +37,13 @@ function render() {
 }
 
 function onButtonPressed(button) {
-    player.x = button.x + 10;
-    player.y = button.y + 10;
+    this.game.add.tween(player)
+        .to(
+            {x: button.x + 10, y: button.y + 10},
+            1000,
+            Phaser.Easing.Sinusoidal.InOut,
+            true,
+            0,
+            0
+        );
 }
