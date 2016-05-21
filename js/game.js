@@ -7,10 +7,18 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
 
 var player;
 var currentStation;
+var goalStation;
+var goalSprite;
+var markersPool;
+var textStyle = {font: 'bold 16px Arial', fill: '#000000', backgroundColor: '#cccccc'};
+var text;
 
 function preload() {
     game.load.image('map', 'assets/Map.jpg');
     game.load.image('bus', 'assets/Bus.png');
+    game.load.image('flag', 'assets/Flag.png');
+    game.load.image('marker', 'assets/Marker.png');
+    game.load.image('reward', 'assets/Winner.jpg');
 }
 
 function create() {
@@ -20,6 +28,11 @@ function create() {
 
     //Background map
     game.add.image(0, 0, 'map');
+    //Goal Sprite
+    goalSprite = game.add.image(0, 0, 'flag');
+    goalSprite.anchor.set(0.5, 0.5);
+    //Movement Markers
+    markersPool = game.add.group();
 
     //Player sprite
     player = game.add.sprite(0, 0, 'bus');
@@ -41,6 +54,17 @@ function create() {
     currentStation = stations[game.rnd.integerInRange(0, stations.length - 1)];
     player.x = currentStation.x;
     player.y = currentStation.y;
+    //And try to get to some other
+    goalStation = stations[game.rnd.integerInRange(0, stations.length - 1)];
+    goalSprite.x = goalStation.x;
+    goalSprite.y = goalStation.y;
+
+
+    text = game.add.text(50, 50, "", textStyle);
+    text.fixedToCamera = true;
+
+    updateText();
+    updateStations();
 }
 
 function update() {
@@ -55,8 +79,10 @@ function onButtonPressed(button) {
     targetStation = button.station;
 
     //Move to target if is connected
-    if (currentStation.connected.indexOf(targetStation.name) != -1) {
+    if (areConnected(currentStation, targetStation)) {
         currentStation = targetStation;
+        updateText();
+        updateStations();
         this.game.add.tween(player)
             .to(
                 {x: targetStation.x, y: targetStation.y},
@@ -67,4 +93,39 @@ function onButtonPressed(button) {
                 0
             );
     }
+}
+
+function areConnected(station1, station2) {
+    return station1.connected.indexOf(station2.name) != -1 && station2.connected.indexOf(station1.name) != -1
+}
+
+function updateText() {
+    text.setText("Estacion Actual: " + currentStation.name + "\nObjetivo:               " + goalStation.name);
+}
+
+function updateStations() {
+    var marker;
+    markersPool.forEachAlive(function (m) {
+        m.kill();
+    });
+    for (var i = 0; i < stations.length; i++) {
+        if (areConnected(currentStation, stations[i])) {
+            marker = getMarker();
+            marker.x = stations[i].x;
+            marker.y = stations[i].y;
+        }
+    }
+}
+
+function getMarker() {
+    var marker;
+    marker = markersPool.getFirstDead();
+    if (marker === null || marker === undefined) {
+        marker = game.add.image(0, 0, 'marker');
+        marker.anchor.set(0.5, 0.75);
+        markersPool.add(marker);
+        return marker
+    }
+    marker.revive();
+    return marker;
 }

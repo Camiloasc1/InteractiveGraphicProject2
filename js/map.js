@@ -284,13 +284,13 @@ var stations = [
         name: 'Las Aguas',
         x: 920,
         y: 44,
-        connected: ['Universidades', 'Museo del Oro',]
+        connected: ['Universidades', 'Museo del Oro']
     },
     {
         name: 'Museo del Oro',
         x: 960,
         y: 87,
-        connected: ['Las Nieves', 'San Victorino', 'AV. Jiménez (J)']
+        connected: ['Las Aguas', 'Las Nieves', 'San Victorino', 'AV. Jiménez (J)']
     },
     {
         name: 'AV. Jiménez (J)',
