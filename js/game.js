@@ -98,9 +98,11 @@ function create() {
 }
 
 function update() {
+    //Set mouse pointer when is over a station.
     var hover = false;
     stationsPool.forEachAlive(
         function (s) {
+            //Check if mouse is inside a button area
             var rectangle = new Phaser.Rectangle(s.left, s.top, s.width, s.height);
             if (Phaser.Rectangle.contains(rectangle, game.input.x + game.camera.x, game.input.y + game.camera.y)) {
                 hover = true;
@@ -117,6 +119,7 @@ function render() {
 
 }
 
+//Start a new game
 function restart() {
     reward.kill();
     map.revive();
@@ -141,6 +144,7 @@ function restart() {
     updateStations();
 }
 
+//The player has reach the goal
 function finish() {
     reward.revive();
     reward.bringToTop();
@@ -152,6 +156,7 @@ function finish() {
     infoText.revive();
     clearMarkers();
 
+    //Reward animation
     reward.anchor.set(0.5, -1.5);
     this.game.add.tween(reward.anchor)
         .to(
@@ -162,18 +167,20 @@ function finish() {
         );
 }
 
+//Move to clicked station
 function onButtonPressed(button) {
     var targetStation = button.station;
-    bus.revive();
-    bus.position = player.position;
-    game.camera.follow(bus);
-    player.kill();
 
     //Move to target if is connected
     if (areConnected(currentStation, targetStation)) {
+        bus.revive();
+        bus.position = player.position;
+        game.camera.follow(bus);
+        player.kill();
         updateText(true);
         clearMarkers();
 
+        //Bus movement animation
         this.game.add.tween(bus)
             .to(
                 {x: targetStation.x, y: targetStation.y},
@@ -182,6 +189,7 @@ function onButtonPressed(button) {
                 true
             );
 
+        //Return to player sprite when the bus reach the target
         game.time.events.add(Phaser.Timer.SECOND, moveToStation, this, targetStation);
     }
 }
@@ -191,20 +199,24 @@ function moveToStation(targetStation) {
     updateText(false);
     updateStations();
 
+    //Switch to player sprite again
     player.revive();
     player.position = bus.position;
     game.camera.follow(player);
     bus.kill();
 
+    //Has reach the goal
     if (currentStation == goalStation) {
         finish.call(this);
     }
 }
 
+//Are these two stations connected?
 function areConnected(station1, station2) {
     return station1.connected.indexOf(station2.name) != -1 && station2.connected.indexOf(station1.name) != -1
 }
 
+//Update status text
 function updateText(movement) {
     if (movement)
         statusText.setText("En Movimiento\nObjetivo: " + goalStation.name);
@@ -212,6 +224,7 @@ function updateText(movement) {
         statusText.setText(currentStation.name + "\nObjetivo: " + goalStation.name);
 }
 
+//Add markers for reachable stations
 function updateStations() {
     for (var i = 0; i < stations.length; i++) {
         if (areConnected(currentStation, stations[i])) {
@@ -222,6 +235,7 @@ function updateStations() {
     }
 }
 
+//Remove the station's markers
 function clearMarkers() {
     stationsPool.forEachAlive(
         function (s) {
