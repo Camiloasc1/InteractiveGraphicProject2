@@ -6,6 +6,7 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
 });
 
 var player;
+var bus;
 var currentStation;
 var goalStation;
 var goalSprite;
@@ -15,6 +16,7 @@ var text;
 
 function preload() {
     game.load.image('map', 'assets/Map.jpg');
+    game.load.image('player', 'assets/Player.png');
     game.load.image('bus', 'assets/Bus.png');
     game.load.image('flag', 'assets/Flag.png');
     game.load.image('marker', 'assets/Marker.png');
@@ -37,10 +39,16 @@ function create() {
     stationsPool = game.add.group();
 
     //Player sprite
-    player = game.add.sprite(0, 0, 'bus');
-    player.scale.setTo(0.05, 0.05);
+    player = game.add.sprite(0, 0, 'player');
     player.anchor.set(0.5, 0.5);
+    player.height = 32;
+    player.width = 32;
     game.camera.follow(player);
+
+    bus = game.add.sprite(0, 0, 'bus');
+    bus.anchor.set(0.5, 0.5);
+    bus.scale.setTo(0.05, 0.05);
+    bus.kill();
 
     //Buttons for each station
     var button;
@@ -76,7 +84,7 @@ function create() {
     goalSprite.y = goalStation.y;
 
 
-    text = game.add.text(50, 50, "", textStyle);
+    text = game.add.text(25, 25, "", textStyle);
     text.fixedToCamera = true;
 
     updateText();
@@ -104,21 +112,33 @@ function render() {
 }
 function onButtonPressed(button) {
     var targetStation = button.station;
+    bus.revive();
+    bus.position = player.position;
+    game.camera.follow(bus);
+    player.kill();
 
     //Move to target if is connected
     if (areConnected(currentStation, targetStation)) {
         currentStation = targetStation;
+        clearMarkers();
         updateText();
-        updateStations();
-        this.game.add.tween(player)
+
+        this.game.add.tween(bus)
             .to(
                 {x: targetStation.x, y: targetStation.y},
-                1000,
+                Phaser.Timer.SECOND,
                 Phaser.Easing.Sinusoidal.InOut,
-                true,
-                0,
-                0
+                true
             );
+
+        game.time.events.add(Phaser.Timer.SECOND, function () {
+            player.revive();
+            player.position = bus.position;
+            game.camera.follow(player);
+            bus.kill();
+
+            updateStations();
+        });
     }
 }
 
@@ -131,13 +151,18 @@ function updateText() {
 }
 
 function updateStations() {
+    for (var i = 0; i < stations.length; i++) {
+        if (areConnected(currentStation, stations[i])) {
+            stations[i].button.revive();
+        } else {
+            stations[i].button.kill();
+        }
+    }
+}
+
+function clearMarkers() {
     stationsPool.forEachAlive(
         function (s) {
             s.kill();
         });
-    for (var i = 0; i < stations.length; i++) {
-        if (areConnected(currentStation, stations[i])) {
-            stations[i].button.revive();
-        }
-    }
 }
