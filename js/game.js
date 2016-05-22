@@ -13,8 +13,10 @@ var currentStation;
 var goalStation;
 var goalSprite;
 var stationsPool;
-var textStyle = {font: 'bold 20px Arial', fill: '#000000', backgroundColor: '#f0f0f0'};
-var text;
+var statusTextStyle = {font: 'bold 20px Arial', fill: '#000000', backgroundColor: '#f0f0f0'};
+var statusText;
+var infoTextStyle = {font: 'bold 24px Arial', fill: '#ffffff', align: 'center', boundsAlignH: 'center'};
+var infoText;
 
 function preload() {
     game.load.image('map', 'assets/Map.jpg');
@@ -82,9 +84,15 @@ function create() {
         button.kill();
     }
 
-    text = game.add.text(25, 25, "", textStyle);
-    text.fixedToCamera = true;
-    text.kill();
+    statusText = game.add.text(25, 25, "", statusTextStyle);
+    statusText.fixedToCamera = true;
+    statusText.kill();
+
+    infoText = game.add.text(game.camera.width / 2, 20, "", infoTextStyle);
+    infoText.anchor.set(0.5, 0.0);
+    infoText.fixedToCamera = true;
+    infoText.setText("Felicidades, has encontrado la tarjeta del millon.\nAhora podras viajar gratis en el metro de Bogotá");
+    infoText.kill();
 
     restart();
 }
@@ -111,11 +119,12 @@ function render() {
 
 function restart() {
     reward.kill();
-    text.revive();
     map.revive();
     player.revive();
     bus.kill();
     goalSprite.revive();
+    statusText.revive();
+    infoText.kill();
 
     game.camera.follow(player);
 
@@ -135,11 +144,12 @@ function restart() {
 function finish() {
     reward.revive();
     reward.bringToTop();
-    text.kill();
     map.kill();
     player.kill();
     bus.kill();
     goalSprite.kill();
+    statusText.kill();
+    infoText.revive();
     clearMarkers();
 
     reward.anchor.set(0.5, -1.5);
@@ -197,9 +207,9 @@ function areConnected(station1, station2) {
 
 function updateText(movement) {
     if (movement)
-        text.setText("En Movimiento\nObjetivo: " + goalStation.name);
+        statusText.setText("En Movimiento\nObjetivo: " + goalStation.name);
     else
-        text.setText(currentStation.name + "\nObjetivo: " + goalStation.name);
+        statusText.setText(currentStation.name + "\nObjetivo: " + goalStation.name);
 }
 
 function updateStations() {
