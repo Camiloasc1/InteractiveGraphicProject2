@@ -5,8 +5,10 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
     render: render
 });
 
+var map;
 var player;
 var bus;
+var reward;
 var currentStation;
 var goalStation;
 var goalSprite;
@@ -20,21 +22,26 @@ function preload() {
     game.load.image('bus', 'assets/Bus.png');
     game.load.image('flag', 'assets/Flag.png');
     game.load.image('marker', 'assets/Marker.png');
-    game.load.image('reward', 'assets/Winner.jpg');
+    game.load.image('reward', 'assets/Reward.jpg');
 }
 
 function create() {
     //Set world size
     var image = game.cache.getImage('map');
     game.world.setBounds(0, 0, image.width, image.height);
-
     //Background map
-    game.add.image(0, 0, 'map');
+    map = game.add.image(0, 0, 'map');
+
+    //Reward Sprite
+    reward = game.add.button(game.camera.width / 2, game.camera.height / 2, 'reward', restart, this);
+    reward.fixedToCamera = true;
+    reward.kill();
     //Goal Sprite
     goalSprite = game.add.image(0, 0, 'flag');
     goalSprite.anchor.set(0.2, 1.0);
     goalSprite.height = 32;
     goalSprite.width = 32;
+    goalSprite.kill();
     //Movement Markers
     stationsPool = game.add.group();
 
@@ -43,8 +50,8 @@ function create() {
     player.anchor.set(0.5, 0.5);
     player.height = 32;
     player.width = 32;
-    game.camera.follow(player);
-
+    player.kill();
+    //Bus sprite
     bus = game.add.sprite(0, 0, 'bus');
     bus.anchor.set(0.5, 0.5);
     bus.scale.setTo(0.05, 0.05);
@@ -72,23 +79,14 @@ function create() {
 
         stations[i].button = button;
         stationsPool.add(button);
+        button.kill();
     }
-
-    //Start at random station
-    currentStation = stations[game.rnd.integerInRange(0, stations.length - 1)];
-    player.x = currentStation.x;
-    player.y = currentStation.y;
-    //And try to get to some other
-    goalStation = stations[game.rnd.integerInRange(0, stations.length - 1)];
-    goalSprite.x = goalStation.x;
-    goalSprite.y = goalStation.y;
-
 
     text = game.add.text(25, 25, "", textStyle);
     text.fixedToCamera = true;
+    text.kill();
 
-    updateText();
-    updateStations();
+    restart();
 }
 
 function update() {
@@ -110,6 +108,50 @@ function update() {
 function render() {
 
 }
+
+function restart() {
+    reward.kill();
+    text.revive();
+    map.revive();
+    player.revive();
+    bus.kill();
+    goalSprite.revive();
+
+    game.camera.follow(player);
+
+    //Start at random station
+    currentStation = stations[game.rnd.integerInRange(0, stations.length - 1)];
+    player.x = currentStation.x;
+    player.y = currentStation.y;
+    //And try to get to some other
+    goalStation = stations[game.rnd.integerInRange(0, stations.length - 1)];
+    goalSprite.x = goalStation.x;
+    goalSprite.y = goalStation.y;
+
+    updateText();
+    updateStations();
+}
+
+function finish() {
+    reward.revive();
+    reward.bringToTop();
+    text.kill();
+    map.kill();
+    player.kill();
+    bus.kill();
+    goalSprite.kill();
+    clearMarkers();
+
+    reward.anchor.set(0.5, -1.5);
+    this.game.add.tween(reward.anchor)
+        .to(
+            {y: 0.5},
+            Phaser.Timer.SECOND * 2.5,
+            Phaser.Easing.Elastic.Out,
+            true
+        );
+}
+
 function onButtonPressed(button) {
     var targetStation = button.station;
     bus.revive();
@@ -119,9 +161,8 @@ function onButtonPressed(button) {
 
     //Move to target if is connected
     if (areConnected(currentStation, targetStation)) {
-        currentStation = targetStation;
+        updateText(true);
         clearMarkers();
-        updateText();
 
         this.game.add.tween(bus)
             .to(
@@ -131,14 +172,22 @@ function onButtonPressed(button) {
                 true
             );
 
-        game.time.events.add(Phaser.Timer.SECOND, function () {
-            player.revive();
-            player.position = bus.position;
-            game.camera.follow(player);
-            bus.kill();
+        game.time.events.add(Phaser.Timer.SECOND, moveToStation, this, targetStation);
+    }
+}
 
-            updateStations();
-        });
+function moveToStation(targetStation) {
+    currentStation = targetStation;
+    updateText(false);
+    updateStations();
+
+    player.revive();
+    player.position = bus.position;
+    game.camera.follow(player);
+    bus.kill();
+
+    if (currentStation == goalStation) {
+        finish.call(this);
     }
 }
 
@@ -146,8 +195,11 @@ function areConnected(station1, station2) {
     return station1.connected.indexOf(station2.name) != -1 && station2.connected.indexOf(station1.name) != -1
 }
 
-function updateText() {
-    text.setText("Estacion Actual: " + currentStation.name + "\nObjetivo:             " + goalStation.name);
+function updateText(movement) {
+    if (movement)
+        text.setText("En Movimiento\nObjetivo: " + goalStation.name);
+    else
+        text.setText(currentStation.name + "\nObjetivo: " + goalStation.name);
 }
 
 function updateStations() {
