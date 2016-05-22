@@ -10,7 +10,7 @@ var currentStation;
 var goalStation;
 var goalSprite;
 var stationsPool;
-var textStyle = {font: 'bold 16px Arial', fill: '#000000', backgroundColor: '#cccccc'};
+var textStyle = {font: 'bold 20px Arial', fill: '#000000', backgroundColor: '#f0f0f0'};
 var text;
 
 function preload() {
@@ -49,6 +49,19 @@ function create() {
         button.height = 24;
         button.width = 24;
         button.station = stations[i];
+
+        // Doesn't work
+        // button.onInputOver.add(function () {
+        //     game.stage.canvas.style.cursor = "pointer";
+        // }); // Doesn't work
+        // button.onInputOut.add(function () {
+        //     game.stage.canvas.style.cursor = "default";
+        // });
+
+        // Doesn't work
+        // button.inputEnabled = true;
+        // button.input.useHandCursor = true;
+
         stations[i].button = button;
         stationsPool.add(button);
     }
@@ -71,15 +84,26 @@ function create() {
 }
 
 function update() {
-
+    var hover = false;
+    stationsPool.forEachAlive(
+        function (s) {
+            var rectangle = new Phaser.Rectangle(s.left, s.top, s.width, s.height);
+            if (Phaser.Rectangle.contains(rectangle, game.input.x + game.camera.x, game.input.y + game.camera.y)) {
+                hover = true;
+            }
+        });
+    if (hover) {
+        game.canvas.style.cursor = "pointer";
+    } else {
+        game.canvas.style.cursor = "default";
+    }
 }
 
 function render() {
 
 }
 function onButtonPressed(button) {
-    var targetStation;
-    targetStation = button.station;
+    var targetStation = button.station;
 
     //Move to target if is connected
     if (areConnected(currentStation, targetStation)) {
@@ -103,13 +127,14 @@ function areConnected(station1, station2) {
 }
 
 function updateText() {
-    text.setText("Estacion Actual: " + currentStation.name + "\nObjetivo:               " + goalStation.name);
+    text.setText("Estacion Actual: " + currentStation.name + "\nObjetivo:             " + goalStation.name);
 }
 
 function updateStations() {
-    stationsPool.forEachAlive(function (m) {
-        m.kill();
-    });
+    stationsPool.forEachAlive(
+        function (s) {
+            s.kill();
+        });
     for (var i = 0; i < stations.length; i++) {
         if (areConnected(currentStation, stations[i])) {
             stations[i].button.revive();
