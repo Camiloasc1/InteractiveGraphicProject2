@@ -1,0 +1,31 @@
+Camilo Andres Sanchez Cubillos - 2879708
+
+
+INTRODUCCION
+
+
+Este proyecto consiste en un juego basado en el sistema Transmilenio de Bogotá, el juegador tendra que recorrer el mapa hasta hallar la "Tarjeta del Millon", con la cual prodra viajar en el futuro metro de Bogotá.
+
+
+DESCIPCION
+
+
+El juego consiste en recorrer un mapa del sistema Transmilenio [3], avanzando entre las estaciones una a la vez hasta llegar a una estacion objetivo.
+La estacion actual y el objetivo se indican en la esquina superior izquierda.
+Cuando inicia la partida el jugador es ubicado en una estacion aleatoria y con un objetivo aleatorio, esta estacion final se resalta con la bandera [4] y las estaciones cercanas son resaltadas con el icono [5], las cuales se van actualizado conforme el jugador se desplaza.
+La ubicacion del jugador se se señala con el icono [6] y cuando se esta moviendo se india con la imagen [3].
+Cuando el jugador ha llegado a la meta recibira su premio [1] y podra jugar de nuevo haciendo click sobre la "Tarjeta del Millon".
+
+
+FUENTES
+
+
+Las imagenes utilizadas se tomaron de:
+
+[1] https://twitter.com/tullaveplus/status/730058342777806849?cn=ZmxleGlibGVfcmVjc18y
+[2] http://www.sitp.gov.co/Publicaciones/que_es_el_sitp/mapas_del_sitp/mapas_transmilenio
+[3] http://www.sitp.gov.co/Publicaciones/TransMilenio
+[4] http://fontawesome.io/icon/font-awesome/
+[5] http://fontawesome.io/icon/map-marker/
+[6] http://fontawesome.io/icon/street-view/
+

@@ -296,7 +296,7 @@ var stations = [
         name: 'AV. Jiménez (J)',
         x: 984,
         y: 231,
-        connected: ['Museo del Oro', 'De La Sabana', 'San Victorino','Las Nieves', 'AV. Jiménez (A)']
+        connected: ['Museo del Oro', 'De La Sabana', 'San Victorino', 'Las Nieves', 'AV. Jiménez (A)']
     },
     //F Americas
     {name: 'De La Sabana', x: 984, y: 303, connected: ['AV. Jiménez (J)', 'San Façon - KR 22']},
